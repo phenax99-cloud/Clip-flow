@@ -7,154 +7,135 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.clipflow.app.data.model.*
+import com.clipflow.app.ui.components.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OptionsScreen(onBack: () -> Unit, onStart: () -> Unit) {
     var options by remember { mutableStateOf(ClipOptions()) }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Clip Options") },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                    }
+    AnimatedBackground {
+        Column(Modifier.fillMaxSize()) {
+            Row(
+                Modifier.fillMaxWidth().padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(onClick = onBack) {
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back", tint = Color.White)
                 }
-            )
-        },
-        bottomBar = {
-            Surface {
-                Button(
-                    onClick = onStart,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
-                        .height(56.dp),
-                    shape = MaterialTheme.shapes.large
-                ) {
-                    Text("Generate Clips", fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                }
-            }
-        }
-    ) { pad ->
-        Column(
-            modifier = Modifier
-                .padding(pad)
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(20.dp)
-        ) {
-            Section("Highlight Detection") {
-                HighlightMethod.entries.forEach { method ->
-                    val selected = method in options.highlightMethods
-                    FilterChip(
-                        selected = selected,
-                        onClick = {
-                            val s = options.highlightMethods.toMutableSet()
-                            if (selected) s.remove(method) else s.add(method)
-                            options = options.copy(highlightMethods = s)
-                        },
-                        label = { Text(method.name.replace("_", " ")) }
-                    )
-                }
+                Text("Clip Options", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
             }
 
-            Section("Clip Length") {
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    ClipLength.entries.forEach { len ->
-                        FilterChip(
-                            selected = options.clipLength == len,
-                            onClick = { options = options.copy(clipLength = len) },
-                            label = { Text(len.label) }
-                        )
+            Column(
+                Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                SummaryCard(options, Modifier.fillMaxWidth())
+
+                GlassCard(Modifier.fillMaxWidth()) {
+                    SectionHeader("🎯", "Highlight Detection")
+                    Spacer(Modifier.height(10.dp))
+                    FlowRowChips {
+                        HighlightMethod.entries.forEach { m ->
+                            val soon = m == HighlightMethod.AI_TRANSCRIPT || m == HighlightMethod.VIRALITY_SCORE
+                            PillChip(m.name.replace("_", " "), m in options.highlightMethods, comingSoon = soon) {
+                                val s = options.highlightMethods.toMutableSet()
+                                if (m in s) s.remove(m) else s.add(m)
+                                options = options.copy(highlightMethods = s)
+                            }
+                        }
                     }
                 }
-            }
 
-            Section("Number of Clips") {
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    listOf(3, 5, 10).forEach { count ->
-                        FilterChip(
-                            selected = options.clipCount == count,
-                            onClick = { options = options.copy(clipCount = count) },
-                            label = { Text("$count") }
-                        )
+                GlassCard(Modifier.fillMaxWidth()) {
+                    SectionHeader("⏱️", "Clip Length")
+                    Spacer(Modifier.height(10.dp))
+                    FlowRowChips {
+                        ClipLength.entries.forEach { l ->
+                            PillChip(l.label, options.clipLength == l) { options = options.copy(clipLength = l) }
+                        }
                     }
                 }
-            }
 
-            Section("Reframe") {
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    ReframeMode.entries.forEach { mode ->
-                        FilterChip(
-                            selected = options.reframeMode == mode,
-                            onClick = { options = options.copy(reframeMode = mode) },
-                            label = { Text(mode.name.replace("_", " ")) }
-                        )
+                GlassCard(Modifier.fillMaxWidth()) {
+                    SectionHeader("🔢", "Number of Clips")
+                    Spacer(Modifier.height(10.dp))
+                    FlowRowChips {
+                        listOf(3, 5, 10).forEach { c ->
+                            PillChip("$c", options.clipCount == c) { options = options.copy(clipCount = c) }
+                        }
                     }
                 }
-            }
 
-            Section("Captions") {
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    CaptionStyle.entries.forEach { style ->
-                        FilterChip(
-                            selected = options.captionStyle == style,
-                            onClick = { options = options.copy(captionStyle = style) },
-                            label = { Text(style.name) }
-                        )
+                GlassCard(Modifier.fillMaxWidth()) {
+                    SectionHeader("🔄", "Reframe")
+                    Spacer(Modifier.height(10.dp))
+                    FlowRowChips {
+                        ReframeMode.entries.forEach { r ->
+                            PillChip(r.name.replace("_", " "), options.reframeMode == r) { options = options.copy(reframeMode = r) }
+                        }
                     }
                 }
-            }
 
-            Section("Engine") {
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Engine.entries.forEach { engine ->
-                        FilterChip(
-                            selected = options.engine == engine,
-                            onClick = { options = options.copy(engine = engine) },
-                            label = { Text(engine.name.replace("_", " ")) }
-                        )
+                GlassCard(Modifier.fillMaxWidth()) {
+                    SectionHeader("💬", "Captions")
+                    Spacer(Modifier.height(10.dp))
+                    FlowRowChips {
+                        CaptionStyle.entries.forEach { c ->
+                            PillChip(c.name, options.captionStyle == c) { options = options.copy(captionStyle = c) }
+                        }
                     }
                 }
+
+                GlassCard(Modifier.fillMaxWidth()) {
+                    SectionHeader("⚡", "Engine")
+                    Spacer(Modifier.height(10.dp))
+                    FlowRowChips {
+                        Engine.entries.forEach { e ->
+                            PillChip(e.name.replace("_", " "), options.engine == e) { options = options.copy(engine = e) }
+                        }
+                    }
+                }
+
+                GlassCard(Modifier.fillMaxWidth()) {
+                    SwitchRow("Title overlay", options.addTitleOverlay) { options = options.copy(addTitleOverlay = it) }
+                    SwitchRow("Emoji + hashtags", options.addEmojiHashtags) { options = options.copy(addEmojiHashtags = it) }
+                    SwitchRow("Overlap clips", options.overlapClips) { options = options.copy(overlapClips = it) }
+                }
+
+                Spacer(Modifier.height(100.dp))
             }
 
-            SwitchRow("Title overlay", options.addTitleOverlay) {
-                options = options.copy(addTitleOverlay = it)
-            }
-            SwitchRow("Emoji + hashtags", options.addEmojiHashtags) {
-                options = options.copy(addEmojiHashtags = it)
-            }
-            SwitchRow("Overlap clips", options.overlapClips) {
-                options = options.copy(overlapClips = it)
+            Box(Modifier.fillMaxWidth().padding(16.dp)) {
+                GradientButton("Generate Clips", Modifier.fillMaxWidth(), onClick = onStart)
             }
         }
     }
 }
 
 @Composable
-private fun Section(title: String, content: @Composable () -> Unit) {
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text(title, fontWeight = FontWeight.SemiBold, fontSize = 15.sp)
-        content()
-    }
+private fun FlowRowChips(content: @Composable () -> Unit) {
+    FlowRow(
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) { content() }
 }
 
 @Composable
 private fun SwitchRow(label: String, checked: Boolean, onCheck: (Boolean) -> Unit) {
     Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween
+        Modifier.fillMaxWidth().padding(vertical = 6.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(label, fontSize = 15.sp)
+        Text(label, color = Color.White, fontSize = 14.sp)
         Switch(checked = checked, onCheckedChange = onCheck)
     }
 }
