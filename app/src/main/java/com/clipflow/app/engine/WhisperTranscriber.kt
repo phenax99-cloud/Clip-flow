@@ -30,10 +30,6 @@ object WhisperTranscriber {
             }
         }
 
-    /**
-     * pcmSamples must be 16 kHz, mono, Float [-1..1].
-     * Returns the full transcript or null on failure.
-     */
     @Synchronized
     suspend fun transcribe(pcmSamples: FloatArray): String? =
         withContext(Dispatchers.IO) {
@@ -41,9 +37,7 @@ object WhisperTranscriber {
             val localCtx = ctx ?: return@withContext null
             if (pcmSamples.isEmpty()) return@withContext null
             try {
-                val params = WhisperFullParams().apply {
-                    // defaults are fine on mobile; set threads if you want
-                }
+                val params = WhisperFullParams()
                 val ok = localJni.fullTranscribe(localCtx, params, pcmSamples)
                 if (ok != 0) return@withContext null
                 val n = localJni.fullNSegments(localCtx)
