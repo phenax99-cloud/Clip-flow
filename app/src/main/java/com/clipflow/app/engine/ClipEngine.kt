@@ -3,12 +3,12 @@ package com.clipflow.app.engine
 import android.content.Context
 import android.media.MediaMetadataRetriever
 import android.net.Uri
-import androidx.media3.common.Effects
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MimeTypes
 import androidx.media3.effect.Presentation
 import androidx.media3.transformer.Composition
 import androidx.media3.transformer.EditedMediaItem
+import androidx.media3.transformer.Effects
 import androidx.media3.transformer.ExportException
 import androidx.media3.transformer.ExportResult
 import androidx.media3.transformer.Transformer
@@ -171,12 +171,7 @@ object ClipEngine {
             ReframeMode.FACE_TRACK, ReframeMode.CENTER_CROP ->
                 Effects(
                     emptyList(),
-                    listOf(
-                        Presentation.createForHeight(
-                            1920,
-                            Presentation.LAYOUT_SCALE_TO_FIT_WITH_CROP
-                        )
-                    )
+                    listOf(Presentation.createForHeight(1920))
                 )
             else -> null
         }
