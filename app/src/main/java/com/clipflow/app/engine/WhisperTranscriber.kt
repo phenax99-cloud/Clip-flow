@@ -24,7 +24,9 @@ object WhisperTranscriber {
                     if (!modelFile.exists()) return@withLock false
                     WhisperJNI.loadLibrary()
                     val localJni = WhisperJNI()
-                    val localCtx = localJni.init(modelFile.absolutePath)
+                    // Public init() takes a java.nio.file.Path, not a String.
+                    val localCtx = localJni.init(modelFile.toPath())
+                        ?: return@withLock false
                     jni = localJni
                     ctx = localCtx
                     true
