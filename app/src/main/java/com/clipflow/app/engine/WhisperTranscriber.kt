@@ -23,7 +23,6 @@ object WhisperTranscriber {
                 return@withLock try {
                     if (!modelFile.exists()) return@withLock false
                     WhisperJNI.loadLibrary()
-                    WhisperJNI.setLibraryLogger(null)
                     val localJni = WhisperJNI()
                     val localCtx = localJni.init(modelFile.absolutePath)
                     jni = localJni
@@ -35,9 +34,6 @@ object WhisperTranscriber {
             }
         }
 
-    /**
-     * pcmSamples must be 16 kHz, mono, Float [-1..1].
-     */
     suspend fun transcribe(pcmSamples: FloatArray): String? =
         withContext(Dispatchers.IO) {
             mutex.withLock {
