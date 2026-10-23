@@ -5,10 +5,8 @@ import android.media.MediaMetadataRetriever
 import android.net.Uri
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MimeTypes
-import androidx.media3.effect.Presentation
 import androidx.media3.transformer.Composition
 import androidx.media3.transformer.EditedMediaItem
-import androidx.media3.transformer.Effects
 import androidx.media3.transformer.ExportException
 import androidx.media3.transformer.ExportResult
 import androidx.media3.transformer.Transformer
@@ -81,7 +79,7 @@ object ClipEngine {
             val p = 0.65f + (i.toFloat() / starts.size) * 0.30f
             onProgress(p, "Cutting clip ${i + 1} of ${starts.size}…")
             try {
-                val uri = cut(context, sourceUri, start, end, out, options.reframeMode)
+                val uri = cut(context, sourceUri, start, end, out)
                 result.add(Clip(uri = uri, index = i + 1, startMs = start, endMs = end))
             } catch (_: Exception) { }
         }
@@ -154,8 +152,7 @@ object ClipEngine {
         sourceUri: Uri,
         startMs: Long,
         endMs: Long,
-        outFile: File,
-        reframe: ReframeMode
+        outFile: File
     ): Uri = suspendCancellableCoroutine { cont ->
         val mediaItem = MediaItem.Builder()
             .setUri(sourceUri)
@@ -167,18 +164,7 @@ object ClipEngine {
             )
             .build()
 
-        val effects = when (reframe) {
-            ReframeMode.FACE_TRACK, ReframeMode.CENTER_CROP ->
-                Effects(
-                    emptyList(),
-                    listOf(Presentation.createForHeight(1920))
-                )
-            else -> null
-        }
-
-        val edited = EditedMediaItem.Builder(mediaItem)
-            .apply { effects?.let { setEffects(it) } }
-            .build()
+        val edited = EditedMediaItem.Builder(mediaItem).build()
 
         val transformer = Transformer.Builder(context)
             .setVideoMimeType(MimeTypes.VIDEO_H264)
