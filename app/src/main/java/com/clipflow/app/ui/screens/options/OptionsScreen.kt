@@ -20,20 +20,16 @@ import com.clipflow.app.ui.components.*
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun OptionsScreen(onBack: () -> Unit, onStart: () -> Unit) {
-    var options by remember { mutableStateOf(ClipOptions()) }
+    var options by remember { mutableStateOf(OptionsStore.options) }
 
     AnimatedBackground {
         Column(Modifier.fillMaxSize()) {
-            Row(
-                Modifier.fillMaxWidth().padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+            Row(Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
                 IconButton(onClick = onBack) {
                     Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back", tint = Color.White)
                 }
                 Text("Clip Options", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
             }
-
             Column(
                 Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -45,8 +41,7 @@ fun OptionsScreen(onBack: () -> Unit, onStart: () -> Unit) {
                     Spacer(Modifier.height(10.dp))
                     FlowRowChips {
                         HighlightMethod.entries.forEach { m ->
-                            val soon = m == HighlightMethod.AI_TRANSCRIPT || m == HighlightMethod.VIRALITY_SCORE
-                            PillChip(m.name.replace("_", " "), m in options.highlightMethods, comingSoon = soon) {
+                            PillChip(m.name.replace("_", " "), m in options.highlightMethods) {
                                 val s = options.highlightMethods.toMutableSet()
                                 if (m in s) s.remove(m) else s.add(m)
                                 options = options.copy(highlightMethods = s)
@@ -54,7 +49,6 @@ fun OptionsScreen(onBack: () -> Unit, onStart: () -> Unit) {
                         }
                     }
                 }
-
                 GlassCard(Modifier.fillMaxWidth()) {
                     SectionHeader("⏱️", "Clip Length")
                     Spacer(Modifier.height(10.dp))
@@ -64,7 +58,6 @@ fun OptionsScreen(onBack: () -> Unit, onStart: () -> Unit) {
                         }
                     }
                 }
-
                 GlassCard(Modifier.fillMaxWidth()) {
                     SectionHeader("🔢", "Number of Clips")
                     Spacer(Modifier.height(10.dp))
@@ -74,17 +67,17 @@ fun OptionsScreen(onBack: () -> Unit, onStart: () -> Unit) {
                         }
                     }
                 }
-
                 GlassCard(Modifier.fillMaxWidth()) {
                     SectionHeader("🔄", "Reframe")
                     Spacer(Modifier.height(10.dp))
                     FlowRowChips {
                         ReframeMode.entries.forEach { r ->
-                            PillChip(r.name.replace("_", " "), options.reframeMode == r) { options = options.copy(reframeMode = r) }
+                            PillChip(r.name.replace("_", " "), options.reframeMode == r) {
+                                options = options.copy(reframeMode = r)
+                            }
                         }
                     }
                 }
-
                 GlassCard(Modifier.fillMaxWidth()) {
                     SectionHeader("💬", "Captions")
                     Spacer(Modifier.height(10.dp))
@@ -94,7 +87,6 @@ fun OptionsScreen(onBack: () -> Unit, onStart: () -> Unit) {
                         }
                     }
                 }
-
                 GlassCard(Modifier.fillMaxWidth()) {
                     SectionHeader("⚡", "Engine")
                     Spacer(Modifier.height(10.dp))
@@ -104,18 +96,18 @@ fun OptionsScreen(onBack: () -> Unit, onStart: () -> Unit) {
                         }
                     }
                 }
-
                 GlassCard(Modifier.fillMaxWidth()) {
                     SwitchRow("Title overlay", options.addTitleOverlay) { options = options.copy(addTitleOverlay = it) }
                     SwitchRow("Emoji + hashtags", options.addEmojiHashtags) { options = options.copy(addEmojiHashtags = it) }
                     SwitchRow("Overlap clips", options.overlapClips) { options = options.copy(overlapClips = it) }
                 }
-
                 Spacer(Modifier.height(100.dp))
             }
-
             Box(Modifier.fillMaxWidth().padding(16.dp)) {
-                GradientButton("Generate Clips", Modifier.fillMaxWidth(), onClick = onStart)
+                GradientButton("Generate Clips", Modifier.fillMaxWidth()) {
+                    OptionsStore.options = options
+                    onStart()
+                }
             }
         }
     }
