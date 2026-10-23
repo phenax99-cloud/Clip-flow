@@ -1,8 +1,15 @@
 package com.clipflow.app.ui.screens.home
 
+import android.net.Uri
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -10,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -20,54 +28,74 @@ import com.clipflow.app.ui.theme.FlowPink
 import com.clipflow.app.ui.theme.FlowPurple
 
 @Composable
-fun HomeScreen(onNext: () -> Unit) {
+fun HomeScreen(onVideoPicked: (Uri) -> Unit, onSettings: () -> Unit) {
     var url by remember { mutableStateOf("") }
+    val ctx = LocalContext.current
+    val picker = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+        if (uri != null) onVideoPicked(uri)
+    }
     val infinite = rememberInfiniteTransition(label = "logo")
-    val pulse by infinite.animateFloat(1f, 1.04f, infiniteRepeatable(tween(2200, easing = FastOutSlowInEasing), RepeatMode.Reverse), label = "pulse")
+    val pulse by infinite.animateFloat(
+        1f, 1.04f,
+        infiniteRepeatable(tween(2200, easing = FastOutSlowInEasing), RepeatMode.Reverse),
+        label = "pulse"
+    )
 
     AnimatedBackground {
-        Column(Modifier.fillMaxSize().padding(24.dp), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(
-                "Clip Flow",
-                fontSize = 48.sp,
-                fontWeight = FontWeight.Black,
-                modifier = Modifier.scale(pulse),
-                style = TextStyle(brush = Brush.horizontalGradient(listOf(FlowPurple, FlowCyan, FlowPink)))
-            )
-            Spacer(Modifier.height(6.dp))
-            Text("Long videos in. Shorts out.", color = Color.White.copy(alpha = 0.75f), fontSize = 15.sp)
-
-            Spacer(Modifier.height(48.dp))
-
-            GlassCard(Modifier.fillMaxWidth()) {
-                OutlinedTextField(
-                    value = url,
-                    onValueChange = { url = it },
-                    label = { Text("Paste YouTube URL", color = Color.White.copy(alpha = 0.7f)) },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(14.dp),
-                    singleLine = true,
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White,
-                        focusedBorderColor = FlowCyan,
-                        unfocusedBorderColor = Color.White.copy(alpha = 0.2f)
-                    )
-                )
-            }
-
-            Spacer(Modifier.height(20.dp))
-
-            GradientButton("Continue", Modifier.fillMaxWidth(), onClick = onNext)
-
-            Spacer(Modifier.height(12.dp))
-
-            OutlinedButton(
-                onClick = onNext,
-                modifier = Modifier.fillMaxWidth().height(56.dp),
-                shape = RoundedCornerShape(18.dp)
+        Box(Modifier.fillMaxSize()) {
+            IconButton(
+                onClick = onSettings,
+                modifier = Modifier.align(Alignment.TopEnd).padding(16.dp)
             ) {
-                Text("Pick from Gallery", fontWeight = FontWeight.SemiBold, color = Color.White)
+                Icon(Icons.Default.Settings, "Settings", tint = Color.White.copy(alpha = 0.8f))
+            }
+            Column(
+                Modifier.fillMaxSize().padding(24.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    "Clip Flow",
+                    fontSize = 48.sp,
+                    fontWeight = FontWeight.Black,
+                    modifier = Modifier.scale(pulse),
+                    style = TextStyle(brush = Brush.horizontalGradient(listOf(FlowPurple, FlowCyan, FlowPink)))
+                )
+                Spacer(Modifier.height(6.dp))
+                Text("Long videos in. Shorts out.", color = Color.White.copy(alpha = 0.75f), fontSize = 15.sp)
+                Spacer(Modifier.height(48.dp))
+                GlassCard(Modifier.fillMaxWidth()) {
+                    OutlinedTextField(
+                        value = url,
+                        onValueChange = { url = it },
+                        label = { Text("Paste YouTube URL", color = Color.White.copy(alpha = 0.7f)) },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(14.dp),
+                        singleLine = true,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = Color.White,
+                            unfocusedTextColor = Color.White,
+                            focusedBorderColor = FlowCyan,
+                            unfocusedBorderColor = Color.White.copy(alpha = 0.2f)
+                        )
+                    )
+                }
+                Spacer(Modifier.height(20.dp))
+                GradientButton("Continue", Modifier.fillMaxWidth()) {
+                    Toast.makeText(
+                        ctx,
+                        "YouTube download ships next build — use Gallery for now",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+                Spacer(Modifier.height(12.dp))
+                OutlinedButton(
+                    onClick = { picker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.VideoOnly)) },
+                    modifier = Modifier.fillMaxWidth().height(56.dp),
+                    shape = RoundedCornerShape(18.dp)
+                ) {
+                    Text("Pick from Gallery", fontWeight = FontWeight.SemiBold, color = Color.White)
+                }
             }
         }
     }
