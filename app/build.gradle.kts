@@ -12,8 +12,8 @@ android {
         applicationId = "com.clipflow.app"
         minSdk = 26
         targetSdk = 34
-        versionCode = 1
-        versionName = "0.1.0"
+        versionCode = 4
+        versionName = "0.4.0"
     }
 
     buildTypes {
@@ -30,18 +30,15 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-
-    kotlinOptions {
-        jvmTarget = "17"
-    }
-
-    buildFeatures {
-        compose = true
-    }
+    kotlinOptions { jvmTarget = "17" }
+    buildFeatures { compose = true }
 
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
+        }
+        jniLibs {
+            useLegacyPackaging = true
         }
     }
 }
@@ -58,6 +55,18 @@ dependencies {
     implementation("androidx.compose.material3:material3")
     implementation("androidx.compose.material:material-icons-extended")
     implementation("androidx.navigation:navigation-compose:2.8.1")
+
+    implementation("androidx.media3:media3-transformer:1.4.1")
+    implementation("androidx.media3:media3-effect:1.4.1")
+    implementation("androidx.media3:media3-common:1.4.1")
+    implementation("androidx.media3:media3-exoplayer:1.4.1")
+    implementation("androidx.media3:media3-ui:1.4.1")
+
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
+
+    // On-device Whisper (whisper.cpp JNI wrapper)
+    implementation("io.github.givimad:whisper-jni:1.7.1")
 
     debugImplementation("androidx.compose.ui:ui-tooling")
 }
