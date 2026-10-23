@@ -1,6 +1,7 @@
 package com.clipflow.app.ui.screens.options
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -16,7 +17,7 @@ import androidx.compose.ui.unit.sp
 import com.clipflow.app.data.model.*
 import com.clipflow.app.ui.components.*
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun OptionsScreen(onBack: () -> Unit, onStart: () -> Unit) {
     var options by remember { mutableStateOf(ClipOptions()) }
@@ -120,6 +121,7 @@ fun OptionsScreen(onBack: () -> Unit, onStart: () -> Unit) {
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun FlowRowChips(content: @Composable () -> Unit) {
     FlowRow(
