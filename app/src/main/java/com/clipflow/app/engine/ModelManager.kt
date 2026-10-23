@@ -13,7 +13,7 @@ object ModelManager {
     private const val MODEL_URL =
         "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.bin"
     private const val MODEL_FILENAME = "ggml-tiny.bin"
-    private const val MIN_VALID_BYTES = 10_000_000L // ~10MB
+    private const val MIN_VALID_BYTES = 10_000_000L
 
     fun modelFile(context: Context): File = File(context.filesDir, MODEL_FILENAME)
 
