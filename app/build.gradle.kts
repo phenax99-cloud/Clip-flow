@@ -34,12 +34,8 @@ android {
     buildFeatures { compose = true }
 
     packaging {
-        resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
-        }
-        jniLibs {
-            useLegacyPackaging = true
-        }
+        resources { excludes += "/META-INF/{AL2.0,LGPL2.1}" }
+        jniLibs { useLegacyPackaging = true }
     }
 }
 
@@ -65,7 +61,6 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
 
-    // On-device Whisper (whisper.cpp JNI wrapper)
     implementation("io.github.givimad:whisper-jni:1.7.1")
 
     debugImplementation("androidx.compose.ui:ui-tooling")
